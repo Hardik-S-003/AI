@@ -1,0 +1,109 @@
+import random
+
+PLAYER_X = 'X'  
+PLAYER_O = 'O' 
+
+def print_board(board):
+    for row in board:
+        print(' | '.join(row))
+        print('-' * 10)
+
+def is_winner(board, player):
+    for i in range(3):
+        if all([cell == player for cell in board[i]]):  
+            return True
+        if all([board[j][i] == player for j in range(3)]):  
+            return True
+    if board[0][0] == player and board[1][1] == player and board[2][2] == player:
+        return True
+    if board[0][2] == player and board[1][1] == player and board[2][0] == player:
+        return True
+    return False
+
+def is_draw(board):
+    return all(cell != ' ' for row in board for cell in row)
+
+def get_empty_positions(board):
+    return [(r, c) for r in range(3) for c in range(3) if board[r][c] == ' ']
+
+def minimax(board, depth, is_maximizing, alpha, beta):
+    if is_winner(board, PLAYER_O):
+        return 1 
+    if is_winner(board, PLAYER_X):
+        return -1  
+    if is_draw(board):
+        return 0  
+
+    if is_maximizing:
+        max_eval = float('-inf')
+        for (r, c) in get_empty_positions(board):
+            board[r][c] = PLAYER_O  
+            eval = minimax(board, depth + 1, False, alpha, beta)
+            board[r][c] = ' '  
+            max_eval = max(max_eval, eval)
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break  
+        return max_eval
+    else:
+        min_eval = float('inf')
+        for (r, c) in get_empty_positions(board):
+            board[r][c] = PLAYER_X  
+            eval = minimax(board, depth + 1, True, alpha, beta)
+            board[r][c] = ' ' 
+            min_eval = min(min_eval, eval)
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break  
+        return min_eval
+
+def get_best_move(board):
+    best_move = None
+    best_value = float('-inf')
+    for (r, c) in get_empty_positions(board):
+        board[r][c] = PLAYER_O  
+        move_value = minimax(board, 0, False, float('-inf'), float('inf'))
+        board[r][c] = ' '  
+        if move_value > best_value:
+            best_value = move_value
+            best_move = (r, c)
+    return best_move
+
+def play_game():
+    board = [[' ' for _ in range(3)] for _ in range(3)]
+    print("Welcome to Tic-Tac-Toe! You are X, and the AI is O.")
+    
+    while True:
+        print_board(board)
+        row, col = map(int, input("Enter row and column (0-2) for your move: ").split())
+        if board[row][col] != ' ':
+            print("Invalid move, try again.")
+            continue
+        board[row][col] = PLAYER_X
+        
+        if is_winner(board, PLAYER_X):
+            print_board(board)
+            print("You win!")
+            break
+        if is_draw(board):
+            print_board(board)
+            print("It's a draw!")
+            break
+        
+        ai_move = get_best_move(board)
+        if ai_move:
+            r, c = ai_move
+            board[r][c] = PLAYER_O
+            print(f"AI plays: {r} {c}")
+            
+            if is_winner(board, PLAYER_O):
+                print_board(board)
+                print("AI wins!")
+                break
+            if is_draw(board):
+                print_board(board)
+                print("It's a draw!")
+                break
+
+if __name__ == "__main__":
+    play_game()
