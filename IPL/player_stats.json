@@ -1,0 +1,98 @@
+{
+    "Virat Kohli": {
+        "strike_rate": 135,
+        "average": 37.97,
+        "recent_form": 1.2,
+        "vs_pace": 1.1,
+        "vs_spin": 0.9,
+        "death_overs_sr": 175.5,
+        "powerplay_sr": 125.8,
+        "ground_performance": {
+            "Mumbai": 1.2,
+            "Bengaluru": 1.3,
+            "Chennai": 0.9
+        }
+    },
+    "Rohit Sharma": {
+        "strike_rate": 130,
+        "average": 31.24,
+        "recent_form": 1.1,
+        "vs_pace": 1.0,
+        "vs_spin": 1.2,
+        "death_overs_sr": 165.5,
+        "powerplay_sr": 135.2,
+        "ground_performance": {
+            "Mumbai": 1.4,
+            "Chennai": 1.1,
+            "Delhi": 0.95
+        }
+    },
+    "MS Dhoni": {
+        "strike_rate": 140,
+        "average": 38.45,
+        "recent_form": 1.15,
+        "vs_pace": 1.2,
+        "vs_spin": 1.1,
+        "death_overs_sr": 190.5,
+        "powerplay_sr": 120.2,
+        "ground_performance": {
+            "Chennai": 1.5,
+            "Mumbai": 1.2,
+            "Kolkata": 1.1
+        }
+    },
+    "Jasprit Bumrah": {
+        "economy": 6.7,
+        "average": 22.39,
+        "recent_form": 1.1,
+        "powerplay_economy": 6.2,
+        "death_overs_economy": 7.8,
+        "vs_rh": 0.9,
+        "vs_lh": 0.85,
+        "ground_performance": {
+            "Mumbai": 1.3,
+            "Chennai": 1.1,
+            "Kolkata": 0.95
+        }
+    },
+    "Yuzvendra Chahal": {
+        "economy": 7.2,
+        "average": 23.15,
+        "recent_form": 1.05,
+        "middle_overs_economy": 6.8,
+        "vs_rh": 0.85,
+        "vs_lh": 0.95,
+        "ground_performance": {
+            "Bengaluru": 1.25,
+            "Mumbai": 1.1,
+            "Delhi": 0.9
+        }
+    },
+    "Rashid Khan": {
+        "economy": 6.5,
+        "average": 21.15,
+        "recent_form": 1.2,
+        "middle_overs_economy": 6.0,
+        "vs_rh": 0.8,
+        "vs_lh": 0.9,
+        "ground_performance": {
+            "Hyderabad": 1.3,
+            "Mumbai": 1.1,
+            "Delhi": 1.0
+        }
+    },
+    "Mohammed Shami": {
+        "economy": 7.8,
+        "average": 24.35,
+        "recent_form": 1.05,
+        "powerplay_economy": 7.2,
+        "death_overs_economy": 8.5,
+        "vs_rh": 0.95,
+        "vs_lh": 0.9,
+        "ground_performance": {
+            "Delhi": 1.2,
+            "Mumbai": 1.0,
+            "Bengaluru": 0.9
+        }
+    }
+}

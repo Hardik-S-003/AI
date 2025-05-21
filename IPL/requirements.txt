@@ -4,3 +4,5 @@ requests
 Pillow
 streamlit-lottie
 scikit-learn
+plotly
+numpy
