@@ -71,20 +71,103 @@ def set_theme(theme):
             <style>
             .stApp {
                 background-color: #FFFFFF;
-                color: #000000;
+                color: #2C3E50;
+            }
+            /* Darken logo in light mode */
+            .stSidebar img {
+                filter: brightness(0.7) contrast(1.2);
             }
             .stButton>button {
-                background-color: #008CBA;
+                background-color: #1E88E5;
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 6px;
                 padding: 8px 16px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: all 0.3s ease;
+            }
+            .stButton>button:hover {
+                background-color: #1976D2;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+            /* Streamlit Components Styling */
+            .stTextInput>div>div>input,
+            .stNumberInput>div>div>input {
+                background-color: #F8F9FA;
+                border: 1px solid #E9ECEF;
+                border-radius: 4px;
+                color: #2C3E50;
+            }
+            .stSelectbox>div>div,
+            .stSlider>div>div,
+            .stTextInput>div>div,
+            .stNumberInput>div>div {
+                background-color: #F8F9FA;
+                border-radius: 4px;
+                color: #2C3E50;
+            }
+            .stMarkdown, .stInfo, .stSuccess, .stWarning, .stError {
+                color: #2C3E50;
+                background-color: #F8F9FA;
+                border-radius: 4px;
+                padding: 8px;
+                margin: 4px 0;
+            }
+            .stProgress .st-progress-bar {
+                background-color: #1E88E5;
+                height: 6px;
+                border-radius: 3px;
+            }
+            .stSidebar {
+                background-color: #F8F9FA;
+                border-right: 1px solid #E9ECEF;
+            }
+            .stSidebar .stMarkdown {
+                color: #2C3E50;
+            }
+            /* Headers and Text */
+            h1, h2, h3, h4, h5, h6, p {
+                color: #2C3E50 !important;
             }
             .title {
                 color: #1E88E5;
                 text-align: center;
                 padding: 20px;
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+                font-weight: 600;
+                text-shadow: none;
+                font-size: 2.5rem;
+            }
+            /* Info boxes */
+            .stInfo > div {
+                background-color: #E3F2FD;
+                color: #1565C0;
+                border: 1px solid #90CAF9;
+            }
+            .stSuccess > div {
+                background-color: #E8F5E9;
+                color: #2E7D32;
+                border: 1px solid #A5D6A7;
+            }
+            .stWarning > div {
+                background-color: #FFF3E0;
+                color: #F57C00;
+                border: 1px solid #FFCC80;
+            }
+            .stError > div {
+                background-color: #FFEBEE;
+                color: #C62828;
+                border: 1px solid #EF9A9A;
+            }
+            /* Expander */
+            .streamlit-expanderHeader {
+                background-color: #F8F9FA;
+                color: #2C3E50;
+                border-radius: 4px;
+            }
+            /* Select Slider */
+            .stSelectSlider>div>div {
+                background-color: #F8F9FA;
+                border: 1px solid #E9ECEF;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -225,7 +308,7 @@ st.markdown("""
 video_container = st.container()
 with video_container:
     st.markdown('<div class="floating-video">', unsafe_allow_html=True)
-    st.video("https://www.youtube.com/watch?v=7ELtVgGhxWk")
+    st.video("https://youtu.be/UuXE82jrdM8?si=bxjsQ0MC6k_3TxKF")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Predict Button
@@ -336,10 +419,33 @@ if st.button('\u26A1 Predict Winning Probability'):
         st.session_state.score_history.append(score)
         st.session_state.prob_history.append(batting_prob)
 
-    st.markdown("<h2 style='text-align: center;'>\U0001F3C6 Winning Probability</h2>", unsafe_allow_html=True)
-    st.success(f"{batting_team}: {batting_prob}%")
-    st.error(f"{bowling_team}: {bowling_prob}%")
-    st.progress(batting_prob / 100)
+    # Determine predicted winner
+    predicted_winner = batting_team if batting_prob > bowling_prob else bowling_team
+    win_probability = max(batting_prob, bowling_prob)
+    
+    # Display prediction header
+    st.markdown("<h2 style='text-align: center;'>\U0001F3C6 Match Prediction</h2>", unsafe_allow_html=True)
+    
+    # Display winner with dynamic styling
+    winner_bg_color = "#E8F5E9" if theme == "Light" else "#1E3620"
+    winner_text_color = "#2C3E50" if theme == "Light" else "#FFFFFF"
+    st.markdown(f"""
+    <div style='text-align: center; padding: 20px; background-color: {winner_bg_color}; 
+         border-radius: 10px; margin: 10px 0; color: {winner_text_color}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);'>
+        <h3 style='margin-bottom: 10px;'>Predicted Winner</h3>
+        <div style='font-size: 2em; font-weight: bold; margin: 10px 0;'>{predicted_winner}</div>
+        <div style='font-size: 1.2em;'>Win Confidence: {win_probability}%</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Show detailed probabilities in collapsible section
+    with st.expander("View Detailed Win Probabilities"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(f"{batting_team}", f"{batting_prob}%")
+        with col2:
+            st.metric(f"{bowling_team}", f"{bowling_prob}%")
+        st.progress(batting_prob / 100)
 
     # Add match situation analysis
     st.markdown("### Match Situation Analysis")
