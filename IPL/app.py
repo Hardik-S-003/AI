@@ -48,12 +48,23 @@ def set_theme(theme):
                 background-color: #2E2E2E;
                 color: white;
             }
+            .stSelectbox>div>div,
+            .stSlider>div>div,
+            .stTextInput>div>div,
+            .stNumberInput>div>div {
+                background-color: #2D2D2D;
+                border: 1px solid #404040;
+                border-radius: 4px;
+                color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
             .stButton>button {
                 background-color: #4CAF50;
                 color: white;
                 border: none;
                 border-radius: 4px;
                 padding: 8px 16px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
             .stProgress .st-progress-bar {
                 background-color: #4CAF50;
@@ -63,6 +74,36 @@ def set_theme(theme):
                 text-align: center;
                 padding: 20px;
                 text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            .stMarkdown, .stInfo, .stSuccess, .stWarning, .stError {
+                background-color: #2D2D2D;
+                border-radius: 4px;
+                padding: 8px;
+                margin: 4px 0;
+            }
+            .streamlit-expanderHeader {
+                color: #FFFFFF !important;
+                background-color: #2D2D2D !important;
+            }
+            .stSlider>div>div>div>div {
+                background-color: #4CAF50;
+            }
+            /* Info boxes in dark mode */
+            .stInfo > div {
+                background-color: #2C3E50 !important;
+                color: #90CAF9 !important;
+            }
+            .stSuccess > div {
+                background-color: #1B5E20 !important;
+                color: #A5D6A7 !important;
+            }
+            .stWarning > div {
+                background-color: #E65100 !important;
+                color: #FFCC80 !important;
+            }
+            .stError > div {
+                background-color: #B71C1C !important;
+                color: #EF9A9A !important;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -102,9 +143,11 @@ def set_theme(theme):
             .stSlider>div>div,
             .stTextInput>div>div,
             .stNumberInput>div>div {
-                background-color: #F8F9FA;
+                background-color: #E8F0FE;
+                border: 1px solid #BDC3C7;
                 border-radius: 4px;
                 color: #2C3E50;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
             .stMarkdown, .stInfo, .stSuccess, .stWarning, .stError {
                 color: #2C3E50;
@@ -172,8 +215,35 @@ def set_theme(theme):
             </style>
         """, unsafe_allow_html=True)
 
-# Apply theme
-theme = st.sidebar.radio("Choose Theme", ("Light", "Dark"))
+# Add theme selection in sidebar with styled radio buttons
+st.markdown("""
+    <style>
+    /* Custom styling for radio buttons */
+    .stRadio [role=radiogroup] {
+        gap: 0;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: #f0f2f6;
+    }
+    
+    .stRadio [role=radio] {
+        width: 100%;
+        padding: 10px 20px;
+        margin: 0;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .stRadio [role=radio][aria-checked="true"] {
+        background-color: #1E88E5;
+        color: white;
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Theme selector as toggle using checkbox
+theme = "Dark" if st.sidebar.checkbox("🌙 Dark Mode", value=False) else "Light"
 set_theme(theme)
 
 # Sidebar Navigation
@@ -262,55 +332,7 @@ with st.expander("Advanced Match Factors"):
         )
         pressure_factor = st.slider('Match Pressure (0-10)', 0, 10, 5)
 
-# Player Selection
-col6, col7 = st.columns(2)
-with col6:
-    batsman = st.selectbox("Current Batsman", players)
-    if batsman in player_stats:
-        stats = player_stats[batsman]
-        if 'strike_rate' in stats:  # Check if player is a batsman
-            st.info(f"""
-            Strike Rate: {stats['strike_rate']}
-            Recent Form: {stats.get('recent_form', 1.0):.2f}
-            Ground Average: {stats['ground_performance'].get(selected_city, 1.0):.2f}
-            """)
-        else:
-            st.warning("Please select a batsman, not a bowler")
-with col7:
-    bowler = st.selectbox("Current Bowler", players)
-    if bowler in player_stats:
-        stats = player_stats[bowler]
-        if 'economy' in stats:  # Check if player is a bowler
-            st.info(f"""
-            Economy: {stats['economy']}
-            Recent Form: {stats.get('recent_form', 1.0):.2f}
-            Ground Economy: {stats['ground_performance'].get(selected_city, 1.0):.2f}
-            """)
-        else:
-            st.warning("Please select a bowler, not a batsman")
-
-# Video Panel with floating effect
-st.markdown("""
-    <style>
-    .floating-video {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 300px;
-        z-index: 1000;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Create a container for the floating video
-video_container = st.container()
-with video_container:
-    st.markdown('<div class="floating-video">', unsafe_allow_html=True)
-    st.video("https://youtu.be/UuXE82jrdM8?si=bxjsQ0MC6k_3TxKF")
-    st.markdown('</div>', unsafe_allow_html=True)
-
+# Predict Button
 # Predict Button
 if st.button('\u26A1 Predict Winning Probability'):
     # Validate match conditions
@@ -335,14 +357,6 @@ if st.button('\u26A1 Predict Winning Probability'):
     crr = score / overs if overs > 0 else 0
     rrr = (runs_left * 6 / balls_left) if balls_left > 0 else float('inf')  # Handle division by zero
 
-    # Get player stats with advanced metrics
-    batsman_stats = player_stats.get(batsman, {})
-    bowler_stats = player_stats.get(bowler, {})
-    
-    # Calculate player impact factors with defensive coding
-    batsman_sr = float(batsman_stats.get('strike_rate', 120))
-    bowler_econ = float(bowler_stats.get('economy', 8.0))
-    
     # Convert pitch condition to numerical factor
     pitch_factors = {
         'Very Bowling Friendly': 0.7,
@@ -368,14 +382,7 @@ if st.button('\u26A1 Predict Winning Probability'):
     pressure_adjustment = min(max(pressure_factor / 10, 0), 1)
     
     # Adjust player performance based on conditions
-    adjusted_batsman_sr = batsman_sr * (1 + dew_adjustment) * (1/pitch_factor) * weather_factor * (1 - pressure_adjustment * 0.2)
-    adjusted_bowler_econ = bowler_econ * (1 - dew_adjustment) * pitch_factor * (1/weather_factor) * (1 + pressure_adjustment * 0.2)
-
-    # Ground impact (with default value if not available)
-    ground_factor_bat = batsman_stats.get('ground_performance', {}).get(selected_city, 1.0)
-    ground_factor_bowl = bowler_stats.get('ground_performance', {}).get(selected_city, 1.0)
-
-    # Create input DataFrame with all features
+    # Create input DataFrame with all features including advanced factors
     input_df = pd.DataFrame({
         'batting_team': [batting_team],
         'bowling_team': [bowling_team],
@@ -385,7 +392,11 @@ if st.button('\u26A1 Predict Winning Probability'):
         'wickets': [float(remaining_wickets)],
         'total_runs_x': [float(target)],
         'crr': [float(crr)],
-        'rrr': [float(rrr)]
+        'rrr': [float(rrr)],
+        'pitch_factor': [float(pitch_factor)],
+        'weather_factor': [float(weather_factor)],
+        'dew_factor': [float(dew_adjustment)],
+        'pressure_factor': [float(pressure_adjustment)]
     })
 
     # Validate input ranges
@@ -395,7 +406,11 @@ if st.button('\u26A1 Predict Winning Probability'):
         'wickets': (0, 10),
         'total_runs_x': (0, 300),
         'crr': (0, 20),
-        'rrr': (0, float('inf'))
+        'rrr': (0, float('inf')),
+        'pitch_factor': (0.7, 1.3),
+        'weather_factor': (0.8, 1.1),
+        'dew_factor': (0, 1),
+        'pressure_factor': (0, 1)
     }
 
     for col, (min_val, max_val) in range_validations.items():
@@ -403,11 +418,13 @@ if st.button('\u26A1 Predict Winning Probability'):
             st.error(f"Invalid value for {col}: {input_df[col].iloc[0]}")
             st.stop()
 
-    # Get prediction
+    # Get prediction with all factors included
     try:
         result = pipe.predict_proba(input_df)
+        # Model now directly uses the advanced factors
         batting_prob = round(result[0][1] * 100)
         bowling_prob = round(result[0][0] * 100)
+        
     except Exception as e:
         st.error(f"Prediction Error: {str(e)}")
         print("Debug - Input DataFrame:")
