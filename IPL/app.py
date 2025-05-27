@@ -44,9 +44,50 @@ def set_theme(theme):
                 background-color: #1E1E1E;
                 color: #FFFFFF;
             }
-            .stSelectbox, .stSlider { 
+            /* Dark Sidebar and Top bar */
+            .stSidebar, [data-testid="stToolbar"], [data-testid="stHeader"] {
+                background-color: #1E1E1E !important;
+                border-right: 1px solid #333333;
+            }
+            /* Make all toolbar elements dark */
+            [data-testid="stToolbar"], header[data-testid="stHeader"] {
+                background-color: #1E1E1E !important;
+            }
+            /* Style all buttons and elements in the toolbar */
+            [data-testid="stToolbar"] button, 
+            [data-testid="stHeader"] button,
+            [data-testid="baseButton-headerNoPadding"] {
+                background-color: #1E1E1E !important;
+                color: #FFFFFF !important;
+            }
+            .stSidebar .stMarkdown, .stSidebar [data-testid="stMarkdownContainer"] p,
+            .stSidebar label, .stSidebar text, .stSidebar .stTitle, 
+            .stSidebar [data-testid="baseButton-headerNoPadding"] p {
+                color: #FFFFFF !important;
+            }
+            /* Style all text in the sidebar to be white */
+            .stSidebar [data-testid="stVerticalBlock"] {
+                color: #FFFFFF !important;
+            }
+            /* Style the checkbox label in sidebar */
+            .stSidebar [data-testid="stCheckbox"] label {
+                color: #FFFFFF !important;
+            }
+            /* Top bar styling in dark mode */
+            [data-testid="stToolbar"] button [data-testid="stToolbarMenuButton"] p {
+                color: #FFFFFF !important;
+            }
+            /* Logo in dark mode */
+            .stSidebar img {
+                filter: brightness(1.2) contrast(1.1) !important;
+            }
+            /* Input components in dark mode */
+            .stSelectbox, .stSlider, .stTextInput, .stNumberInput { 
                 background-color: #2E2E2E;
-                color: white;
+                color: white !important;
+            }
+            .stSelectbox > div > div > div > div {
+                color: white !important;
             }
             .stSelectbox>div>div,
             .stSlider>div>div,
@@ -55,8 +96,16 @@ def set_theme(theme):
                 background-color: #2D2D2D;
                 border: 1px solid #404040;
                 border-radius: 4px;
-                color: #FFFFFF;
+                color: #FFFFFF !important;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+            /* Labels and text in dark mode */
+            .stSelectbox label, .stSlider label, .stTextInput label, .stNumberInput label {
+                color: #FFFFFF !important;
+            }
+            /* Text and labels in dark mode */
+            .stMarkdown, label, .stSelectbox div, .stRadio label {
+                color: #FFFFFF !important;
             }
             .stButton>button {
                 background-color: #4CAF50;
@@ -317,19 +366,27 @@ with col5:
 
 # Advanced What-if Analysis
 with st.expander("Advanced Match Factors"):
-    col8, col9 = st.columns(2)
-    with col8:
+    # Create a 2x2 grid
+    row1_col1, row1_col2 = st.columns(2)
+    row2_col1, row2_col2 = st.columns(2)
+    
+    # Row 1: Pitch and Weather conditions
+    with row1_col1:
         pitch_condition = st.select_slider(
             'Pitch Condition',
             options=['Very Bowling Friendly', 'Bowling Friendly', 'Neutral', 'Batting Friendly', 'Very Batting Friendly'],
             value='Neutral'
         )
-        dew_factor = st.slider('Dew Impact (0-10)', 0, 10, 5)
-    with col9:
+    with row1_col2:
         weather_condition = st.selectbox(
             'Weather Condition',
             ['Clear', 'Partly Cloudy', 'Overcast', 'Light Rain', 'Humid']
         )
+    
+    # Row 2: Dew Impact and Match Pressure
+    with row2_col1:
+        dew_factor = st.slider('Dew Impact (0-10)', 0, 10, 5)
+    with row2_col2:
         pressure_factor = st.slider('Match Pressure (0-10)', 0, 10, 5)
 
 # Predict Button
@@ -431,10 +488,21 @@ if st.button('\u26A1 Predict Winning Probability'):
         print(input_df)
         st.stop()
         
+    # Reset history if teams change or target changes
+    if 'last_batting_team' not in st.session_state or st.session_state.last_batting_team != batting_team or \
+       'last_bowling_team' not in st.session_state or st.session_state.last_bowling_team != bowling_team or \
+       'last_target' not in st.session_state or st.session_state.last_target != target:
+        st.session_state.score_history = []
+        st.session_state.prob_history = []
+        st.session_state.overs_history = []
+        st.session_state.last_batting_team = batting_team
+        st.session_state.last_bowling_team = bowling_team
+        st.session_state.last_target = target
+    
     # Store history for timeline
-    if len(st.session_state.score_history) == 0 or st.session_state.score_history[-1] != score:
-        st.session_state.score_history.append(score)
-        st.session_state.prob_history.append(batting_prob)
+    st.session_state.score_history.append(score)
+    st.session_state.prob_history.append(batting_prob)
+    st.session_state.overs_history.append(overs)
 
     # Determine predicted winner
     predicted_winner = batting_team if batting_prob > bowling_prob else bowling_team
@@ -501,39 +569,63 @@ if st.button('\u26A1 Predict Winning Probability'):
     if len(st.session_state.score_history) > 0:
         fig = go.Figure()
         
+        # Create x-axis points based on overs
+        x_points = st.session_state.overs_history
+        
         # Win probability line
         fig.add_trace(go.Scatter(
-            x=list(range(len(st.session_state.score_history))),
+            x=x_points,
             y=st.session_state.prob_history,
             mode='lines+markers',
             name='Win Probability',
-            line=dict(color='#4CAF50', width=3)
+            line=dict(color='#4CAF50', width=3),
+            hovertemplate='Over: %{x}<br>Win Prob: %{y}%<extra></extra>'
         ))
         
         # Score progression
         fig.add_trace(go.Scatter(
-            x=list(range(len(st.session_state.score_history))),
+            x=x_points,
             y=st.session_state.score_history,
             mode='lines+markers',
             name='Score Progression',
             yaxis='y2',
-            line=dict(color='#1E88E5', width=3)
+            line=dict(color='#1E88E5', width=3),
+            hovertemplate='Over: %{x}<br>Score: %{y}<extra></extra>'
         ))
         
         # Layout updates
         fig.update_layout(
-            title='Match Progress Timeline',
-            xaxis_title='Updates',
+            title={
+                'text': 'Match Progress Timeline',
+                'y':0.95,
+                'x':0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'
+            },
+            xaxis_title='Overs',
             yaxis_title='Win Probability (%)',
             yaxis2=dict(
                 title='Score',
                 overlaying='y',
-                side='right'
+                side='right',
+                range=[0, target]  # Set y-axis range based on target
             ),
-            plot_bgcolor='rgba(0,0,0,0)',
+            yaxis=dict(range=[0, 100]),  # Set probability range from 0-100
+            plot_bgcolor='rgba(0,0,0,0.02)',
             paper_bgcolor='rgba(0,0,0,0)',
-            showlegend=True
+            hovermode='x unified',
+            showlegend=True,
+            legend=dict(
+                yanchor="top",
+                y=0.99,
+                xanchor="left",
+                x=0.01
+            )
         )
+        
+        # Add grid
+        fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(128, 128, 128, 0.1)', range=[0, 20])
+        fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(128, 128, 128, 0.1)')
         
         # Show the plot
         st.plotly_chart(fig, use_container_width=True)
