@@ -33,7 +33,7 @@ if 'prob_history' not in st.session_state:
     st.session_state.prob_history = []
 
 # Set Page Configuration
-st.set_page_config(page_title="IPL Win Predictor", layout="wide")
+st.set_page_config(page_title="AI-DRIVEN IPL Win Predictor", layout="wide")
 
 # Theme Toggle with Enhanced Styling
 def set_theme(theme):
@@ -296,7 +296,7 @@ theme = "Dark" if st.sidebar.checkbox("🌙 Dark Mode", value=False) else "Light
 set_theme(theme)
 
 # Sidebar Navigation
-st.sidebar.title("\U0001F3CF IPL Win Predictor")
+st.sidebar.title("\U0001F3CF AI-DRIVEN IPL Win Predictor")
 st.sidebar.image("https://www.iplt20.com/assets/images/IPL_LOGO_CORPORATE_2024.png", width=300)
 
 # Dropdown Options and Team Mappings
@@ -318,13 +318,13 @@ team_abbr = {
     'Delhi Capitals': 'DC'
 }
 cities = sorted([
-    'Hyderabad', 'Bangalore', 'Mumbai', 'Indore', 'Kolkata', 'Delhi',
+    'Hyderabad', 'Mumbai', 'Indore', 'Kolkata', 'Delhi',
     'Chandigarh', 'Jaipur', 'Chennai', 'Ahmedabad', 'Pune', 'Bengaluru'
 ])
 players = sorted(set(list(player_stats.keys())))
 
 # Header
-st.markdown("<h1 class='title'>\U0001F3C6 IPL Win Predictor</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='title'>\U0001F3C6 AI-DRIVEN IPL Win Predictor</h1>", unsafe_allow_html=True)
 
 # Match Details Input
 col1, col2 = st.columns(2)
